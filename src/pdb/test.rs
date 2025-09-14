@@ -5,8 +5,10 @@
 // http://mozilla.org/MPL/2.0/.
 //
 // SPDX-License-Identifier: MPL-2.0
+use super::ext::*;
 use super::*;
 use crate::util::testing::{test_roundtrip, test_roundtrip_with_args};
+use std::num::NonZero;
 
 #[test]
 fn empty_header() {
@@ -8960,6 +8962,1063 @@ fn artworks_page() {
     let page_size = 4096;
     test_roundtrip_with_args(
         include_bytes!("../../data/pdb/unit_tests/artworks_page.bin"),
+        page,
+        (page_size, DatabaseType::Plain),
+        (page_size, DatabaseType::Plain),
+    );
+}
+
+#[test]
+fn tag_page() {
+    let mut row_groups = vec![
+        RowGroup {
+            row_offsets: Default::default(),
+            row_presence_flags: 0,
+            unknown: 0,
+            rows: vec![],
+        };
+        2
+    ];
+
+    row_groups[0].unknown = 65535; // interestingly, these are the same
+    row_groups[1].unknown = 127; // as row_presence_flags in this page
+
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 0,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(None),
+            position: 0,
+            id: TagId(1),
+            raw_is_category: 16777216,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 44]),
+                inner: TagOrCategoryStrings {
+                    name: "TagCategory1".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 32,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(1).unwrap())),
+            position: 0,
+            id: TagId(3456350885),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag1Cat1".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 64,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(1).unwrap())),
+            position: 1,
+            id: TagId(246010797),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag2Cat1".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 96,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(None),
+            position: 1,
+            id: TagId(2),
+            raw_is_category: 16777216,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 44]),
+                inner: TagOrCategoryStrings {
+                    name: "TagCategory2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 128,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 0,
+            id: TagId(2923592519),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag1Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 160,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 1,
+            id: TagId(3518593467),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 48]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag2Cat2LongName".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 192,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 2,
+            id: TagId(870902105),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag3Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 224,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 3,
+            id: TagId(3211624224),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag4Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 256,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 4,
+            id: TagId(3216792858),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag5Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 288,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 5,
+            id: TagId(712200756),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag6Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 320,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 6,
+            id: TagId(4166869272),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag7Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 352,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(2).unwrap())),
+            position: 7,
+            id: TagId(4052665282),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag8Cat2".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 384,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(None),
+            position: 2,
+            id: TagId(3),
+            raw_is_category: 16777216,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 44]),
+                inner: TagOrCategoryStrings {
+                    name: "TagCategory3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 416,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 0,
+            id: TagId(2498240426),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag1Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 448,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 1,
+            id: TagId(598441108),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag2Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 480,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 2,
+            id: TagId(4263562201),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag3Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 512,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 3,
+            id: TagId(926017397),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag4Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 544,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 4,
+            id: TagId(707481115),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag5Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 576,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 5,
+            id: TagId(3043071597),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag6Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 608,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 6,
+            id: TagId(4026144338),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag7Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 640,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(3).unwrap())),
+            position: 7,
+            id: TagId(218937570),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 40]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag8Cat3".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 672,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(None),
+            position: 3,
+            id: TagId(4),
+            raw_is_category: 16777216,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 44]),
+                inner: TagOrCategoryStrings {
+                    name: "TagCategory4".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 11.into(),
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::Tag(TagOrCategory {
+            subtype: Subtype(1664),
+            index_shift: 704,
+            unknown1: 0,
+            unknown2: 0,
+            parent_id: ParentId(Some(NonZero::new(4).unwrap())),
+            position: 0,
+            id: TagId(3074636465),
+            raw_is_category: 0,
+            offsets: OffsetArrayContainer {
+                offsets: OffsetArray::U8([3, 31, 54]),
+                inner: TagOrCategoryStrings {
+                    name: "Tag1Cat4EvenLongerName".parse().unwrap(),
+                    unknown: "".parse().unwrap(),
+                },
+            },
+            padding: 0.into(),
+        })))
+        .unwrap();
+
+    let page = Page {
+        page_index: PageIndex(8),
+        page_type: PageType::Ext(ExtPageType::Tag),
+        next_page: PageIndex(20),
+        unknown1: 2,
+        unknown2: 0,
+        num_rows_small: 23,
+        unknown3: 224,
+        unknown4: 2,
+        page_flags: PageFlags(36),
+        free_size: 2770,
+        used_size: 1232,
+        unknown5: 23,
+        num_rows_large: 0,
+        unknown6: 0,
+        unknown7: 0,
+        row_groups,
+    };
+
+    let page_size = 4096;
+    test_roundtrip_with_args(
+        include_bytes!("../../data/pdb/unit_tests/tag_page.bin"),
+        page,
+        (page_size, DatabaseType::Ext),
+        (page_size, DatabaseType::Ext),
+    );
+}
+
+#[test]
+fn track_tag_page() {
+    let mut row_groups = vec![
+        RowGroup {
+            row_offsets: Default::default(),
+            row_presence_flags: 0,
+            unknown: 0,
+            rows: vec![],
+        };
+        4
+    ];
+
+    row_groups[3].unknown = 8;
+
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(1),
+            tag_id: TagId(2498240426),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(2),
+            tag_id: TagId(4052665282),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(2),
+            tag_id: TagId(2498240426),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(3),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(3),
+            tag_id: TagId(3518593467),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(3),
+            tag_id: TagId(3074636465),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(4),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(4),
+            tag_id: TagId(3518593467),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(4),
+            tag_id: TagId(4026144338),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(4),
+            tag_id: TagId(3074636465),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(5),
+            tag_id: TagId(4052665282),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(5),
+            tag_id: TagId(218937570),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(5),
+            tag_id: TagId(3074636465),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(6),
+            tag_id: TagId(3211624224),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(6),
+            tag_id: TagId(3043071597),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(7),
+            tag_id: TagId(2923592519),
+            unknown_const: 3,
+        })))
+        .unwrap();
+
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(7),
+            tag_id: TagId(712200756),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(8),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(8),
+            tag_id: TagId(4263562201),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(8),
+            tag_id: TagId(3074636465),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(9),
+            tag_id: TagId(4052665282),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(9),
+            tag_id: TagId(3074636465),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(10),
+            tag_id: TagId(3216792858),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(10),
+            tag_id: TagId(4026144338),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(11),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(11),
+            tag_id: TagId(598441108),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(11),
+            tag_id: TagId(707481115),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(12),
+            tag_id: TagId(2923592519),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(12),
+            tag_id: TagId(3518593467),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(12),
+            tag_id: TagId(926017397),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(13),
+            tag_id: TagId(712200756),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[1]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(13),
+            tag_id: TagId(4263562201),
+            unknown_const: 3,
+        })))
+        .unwrap();
+
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(14),
+            tag_id: TagId(3211624224),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(14),
+            tag_id: TagId(4026144338),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(15),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(15),
+            tag_id: TagId(4166869272),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(16),
+            tag_id: TagId(4052665282),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(16),
+            tag_id: TagId(3043071597),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(17),
+            tag_id: TagId(4166869272),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(17),
+            tag_id: TagId(926017397),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(18),
+            tag_id: TagId(3518593467),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(18),
+            tag_id: TagId(870902105),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(19),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(19),
+            tag_id: TagId(3211624224),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(20),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(21),
+            tag_id: TagId(3456350885),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(22),
+            tag_id: TagId(4166869272),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[2]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(24),
+            tag_id: TagId(4166869272),
+            unknown_const: 3,
+        })))
+        .unwrap();
+
+    row_groups[3]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(25),
+            tag_id: TagId(3211624224),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[3]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(25),
+            tag_id: TagId(3216792858),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[3]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(29),
+            tag_id: TagId(2498240426),
+            unknown_const: 3,
+        })))
+        .unwrap();
+    row_groups[3]
+        .add_row(Row::Ext(ExtRow::TrackTag(TrackTag {
+            track_id: TrackId(29),
+            tag_id: TagId(598441108),
+            unknown_const: 3,
+        })))
+        .unwrap();
+
+    let page = Page {
+        page_index: PageIndex(10),
+        page_type: PageType::Ext(ExtPageType::TrackTag),
+        next_page: PageIndex(21),
+        unknown1: 54,
+        unknown2: 0,
+        num_rows_small: 52,
+        unknown3: 128,
+        unknown4: 6,
+        page_flags: PageFlags(36),
+        free_size: 3104,
+        used_size: 832,
+        unknown5: 1,
+        num_rows_large: 51,
+        unknown6: 0,
+        unknown7: 0,
+        row_groups,
+    };
+
+    let page_size = 4096;
+    test_roundtrip_with_args(
+        include_bytes!("../../data/pdb/unit_tests/track_tag_page.bin"),
+        page,
+        (page_size, DatabaseType::Ext),
+        (page_size, DatabaseType::Ext),
+    );
+}
+
+/* TODO the CDJ-350 seems to create a HistoryPlaylists page for each row.
+Find a player that properly fills a page and improve this test. */
+#[test]
+fn history_playlists_page() {
+    let mut row_groups = vec![
+        RowGroup {
+            row_offsets: Default::default(),
+            row_presence_flags: 0,
+            unknown: 0,
+            rows: vec![],
+        };
+        1
+    ];
+    row_groups[0].unknown = 1;
+
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryPlaylist(HistoryPlaylist {
+            id: HistoryPlaylistId(1),
+            name: "HISTORY 001".parse().unwrap(),
+        })))
+        .unwrap();
+
+    let page = Page {
+        page_index: PageIndex(24),
+        page_type: PageType::Plain(PlainPageType::HistoryPlaylists),
+        next_page: PageIndex(59),
+        unknown1: 240,
+        unknown2: 0,
+        num_rows_small: 1,
+        unknown3: 32,
+        unknown4: 0,
+        page_flags: PageFlags(36),
+        free_size: 4034,
+        used_size: 16,
+        unknown5: 1,
+        num_rows_large: 0,
+        unknown6: 0,
+        unknown7: 0,
+        row_groups,
+    };
+
+    let page_size = 4096;
+    test_roundtrip_with_args(
+        include_bytes!("../../data/pdb/unit_tests/history_playlists_page.bin"),
+        page,
+        (page_size, DatabaseType::Plain),
+        (page_size, DatabaseType::Plain),
+    );
+}
+
+// TODO improve the test with a fuller page
+#[test]
+fn history_entries_page() {
+    let mut row_groups = vec![
+        RowGroup {
+            row_offsets: Default::default(),
+            row_presence_flags: 0,
+            unknown: 0,
+            rows: vec![],
+        };
+        1
+    ];
+    row_groups[0].unknown = 64;
+
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(35),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 1,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(18),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 2,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(25),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 3,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(5),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 4,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(12),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 5,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(19),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 6,
+        })))
+        .unwrap();
+    row_groups[0]
+        .add_row(Row::Plain(PlainRow::HistoryEntry(HistoryEntry {
+            track_id: TrackId(6),
+            playlist_id: HistoryPlaylistId(2),
+            entry_index: 7,
+        })))
+        .unwrap();
+
+    let page = Page {
+        page_index: PageIndex(60),
+        page_type: PageType::Plain(PlainPageType::HistoryEntries),
+        next_page: PageIndex(62),
+        unknown1: 254,
+        unknown2: 0,
+        num_rows_small: 7,
+        unknown3: 224,
+        unknown4: 0,
+        page_flags: PageFlags(36),
+        free_size: 3954,
+        used_size: 84,
+        unknown5: 1,
+        num_rows_large: 6,
+        unknown6: 0,
+        unknown7: 0,
+        row_groups,
+    };
+
+    let page_size = 4096;
+    test_roundtrip_with_args(
+        include_bytes!("../../data/pdb/unit_tests/history_entries_page.bin"),
         page,
         (page_size, DatabaseType::Plain),
         (page_size, DatabaseType::Plain),

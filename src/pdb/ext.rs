@@ -20,6 +20,7 @@
 //! - <https://github.com/flesniak/python-prodj-link/tree/master/prodj/pdblib>
 
 use crate::pdb::{DeviceSQLString, OffsetArray, OffsetArrayContainer, Subtype, TrackId};
+use crate::util::ExplicitPadding;
 use binrw::binrw;
 use std::num::NonZero;
 
@@ -35,46 +36,64 @@ pub struct TagId(pub u32);
 /// A possibly absent parent ID. If the ID is zero (None), then there is no parent.
 pub struct ParentId(
     #[br(try)] // failing to parse is fine, since then its just non-zero
-    pub  Option<NonZero<u32>>,
+    #[bw(map = |&x| x.map_or(0, |v| v.get()))]
+    pub Option<NonZero<u32>>,
 );
 
 #[binrw]
 #[brw(little)]
 #[brw(import(base: i64, offsets: &OffsetArray<3>, args: ()))]
 #[derive(Debug, PartialEq, Clone, Eq)]
-struct TagOrCategoryStrings {
+/// The strings associated with a tag or category.
+pub struct TagOrCategoryStrings {
     #[brw(args(base, args))]
     #[br(parse_with = offsets.read_offset(1))]
     #[bw(write_with = offsets.write_offset(1))]
-    name: DeviceSQLString,
+    /// The name of the tag or category.
+    pub name: DeviceSQLString,
     #[brw(args(base, args))]
     #[br(parse_with = offsets.read_offset(2))]
     #[bw(write_with = offsets.write_offset(2))]
-    unknown: DeviceSQLString,
+    /// String with unknown purpose, often empty.
+    pub unknown: DeviceSQLString,
 }
 
 /// A tag or category that can be assigned to tracks for the purpose of categorization.
-// https://djl-analysis.deepsymmetry.org/rekordbox-export-analysis/exports.html#tag-rows
+///
+/// ## References
+///
+/// - <https://djl-analysis.deepsymmetry.org/rekordbox-export-analysis/exports.html#tag-rows>
 #[binrw]
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[brw(little)]
 pub struct TagOrCategory {
-    subtype: Subtype,
+    /// Determines if an 8-bit offset (0x0680) or a 16-bit offset (0x0684) is used for the strings.
+    pub subtype: Subtype,
     // also called tag_index. Seems to increment by 0x20 every row.
-    index_shift: u16,
+    /// Incrementing index (0x20 for each row).
+    pub index_shift: u16,
     // no idea what these two do, but they aren't always zero
     // as described on https://djl-analysis.deepsymmetry.org/rekordbox-export-analysis/exports.html#tag-rows
-    unknown1: u32,
-    unknown2: u32,
-    parent_id: ParentId,
-    // zero-based position at which this tag should be displayed within its category.
-    // If the row represents a category rather than a tag, then this is the zero-based
-    // position of the category itself within the category list.
-    position: u32,
-    id: TagId,
-    raw_is_category: u32,
+    /// Unknown purpose.
+    pub unknown1: u32,
+    /// Unknown purpose.
+    pub unknown2: u32,
+    /// The ID of the parent category, if any.
+    pub parent_id: ParentId,
+    /// Zero-based position at which this tag should be displayed within its category.
+    /// If the row represents a category rather than a tag, then this is the zero-based
+    /// position of the category itself within the category list.
+    pub position: u32,
+    /// Numeric ID of the tag or category.
+    pub id: TagId,
+    /// Non-zero if this row represents a category rather than a tag.
+    pub raw_is_category: u32,
     #[brw(args(0x1C, subtype.get_offset_size(), ()))]
-    offsets: OffsetArrayContainer<TagOrCategoryStrings, 3>,
+    /// The strings associated with this tag or category.
+    pub offsets: OffsetArrayContainer<TagOrCategoryStrings, 3>,
+    #[br(args(0x20))]
+    /// Padding at the end of the struct (observed 11 bytes for this rows)
+    pub padding: ExplicitPadding,
 }
 
 // https://djl-analysis.deepsymmetry.org/rekordbox-export-analysis/exports.html#tag-track-rows
@@ -84,9 +103,12 @@ pub struct TagOrCategory {
 #[brw(little)]
 pub struct TrackTag {
     #[brw(magic(0u32))]
-    track_id: TrackId,
-    tag_id: TagId,
-    unknown_const: u32, // always 3?
+    /// The ID of the track.
+    pub track_id: TrackId,
+    /// The ID of the tag.
+    pub tag_id: TagId,
+    /// Unknown purpose, seems to be always 3.
+    pub unknown_const: u32, // always 3?
 }
 
 /// The type of ext pages found inside a `Table`.
@@ -126,7 +148,9 @@ impl ExtRow {
     pub(crate) const fn align_by(&self, offset: u64) -> u64 {
         use crate::util::align_by;
         use std::mem::align_of_val;
-        // Fine for now,
-        align_by(align_of_val(self) as u64, offset)
+        match self {
+            ExtRow::Tag(_) => align_by(4, offset),
+            ExtRow::TrackTag(r) => align_by(align_of_val(r) as u64, offset),
+        }
     }
 }
