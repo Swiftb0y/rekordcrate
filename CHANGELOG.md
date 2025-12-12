@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- pdb: Skip reading rows of invalid pages
+- pdb: Adhere to rows alignment to type alignment when writing
+- Always read all 16 rows potential from each row group
 - Plain Hotcues being rejected due to cuetype mismatch
 - pdb: Change padding logic for track rows
 - pdb: Pass parsing stage of track_page test
@@ -36,12 +39,21 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- changelog: Fix typo
 - pdb: Add doc comments for struct fields in ext.rs
 - Link to upstream Tag row docs in docs
 - pdb: Enhance documentation for some index page fields
 
 ### Features
 
+- setting: Add method to construct default setting objects
+- setting: Derive `Clone` and `Copy` traits for all setting values
+- setting: Derive `Clone` for all setting data structs
+- setting: Add `Display` implementation for setting values
+- pdb: Add Columns table
+- pdb: Mark table rows as serializable
+- pdb: Implement support for serialization of table pages
+- xml: Add support for Rekordbox XML format
 - Use "clean" buffer in `track_page` test & refactor `DeviceSQLString` construction
 - Add `artist_page_long` test to cover the 0x64 artist subtype
 - Get `labels_page` passing
@@ -54,6 +66,10 @@ All notable changes to this project will be documented in this file.
 
 ### Refactor
 
+- cli: Return `Result` from main method instead of unwrapping
+- Avoid temporary Vec allocation in assert_pdb_row_count
+- Use div_ceil instead of handrolled checked arithmatic
+- Improve `BinRead` impl of `RowGroup`
 - Simplify `Page` and `RowGroup` parsing
 - Fix test `assert_eq!(result, expected)` parameter order
 - Move `Row::Artist`-specific padding to `Artist` struct
@@ -78,6 +94,10 @@ All notable changes to this project will be documented in this file.
 
 ### Testing
 
+- util: Add helper function for passing args to roundtrip tests
+- util: Add additional length checks to roundtrip tests
+- util: Print useful diffs when `assert_eq!` fails on large blobs
+- Add regression tests to ensure all rows are read
 - pdb: Add genres_page test
 - pdb: Add artists_page test
 - pdb: Move tests to sepparate file
@@ -93,57 +113,6 @@ All notable changes to this project will be documented in this file.
 - pdb: Add tag and track_tag page tests
 - pdb: Add history playlists and entries page tests
 - pdb: Add `index_page` unit test
-
-## [0.3.0] - 2025-01-23
-
-### Bug Fixes
-
-- Always read all 16 rows potential from each row group
-
-### Documentation
-
-- changelog: Fix typo
-
-### Features
-
-- xml: Add support for Rekordbox XML format
-
-### Refactor
-
-- Avoid temporary Vec allocation in assert_pdb_row_count
-- Use div_ceil instead of handrolled checked arithmatic
-- Improve `BinRead` impl of `RowGroup`
-
-### Testing
-
-- Add regression tests to ensure all rows are read
-
-## [0.2.1] - 2023-11-30
-
-### Bug Fixes
-
-- pdb: Skip reading rows of invalid pages
-- pdb: Adhere to rows alignment to type alignment when writing
-
-### Features
-
-- setting: Add method to construct default setting objects
-- setting: Derive `Clone` and `Copy` traits for all setting values
-- setting: Derive `Clone` for all setting data structs
-- setting: Add `Display` implementation for setting values
-- pdb: Add Columns table
-- pdb: Mark table rows as serializable
-- pdb: Implement support for serialization of table pages
-
-### Refactor
-
-- cli: Return `Result` from main method instead of unwrapping
-
-### Testing
-
-- util: Add helper function for passing args to roundtrip tests
-- util: Add additional length checks to roundtrip tests
-- util: Print useful diffs when `assert_eq!` fails on large blobs
 
 ## [0.2.0] - 2022-10-09
 
